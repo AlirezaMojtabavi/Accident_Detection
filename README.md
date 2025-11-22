@@ -67,7 +67,7 @@ The main workflow is organized into Jupyter notebooks:
     - Fusion of video + metadata features followed by a binary classifier head.
   - Implements the **multi-stage training** strategy:
     - **Stage 1:** Train top layers with CNN frozen.
-    - **Stage 2:** Unfreeze the last *N* CNN layers (excluding BatchNorm) and fine-tune with a low learning rate.
+    - **Stage 2:** Unfreeze the last 10 CNN layers (excluding BatchNorm) and fine-tune with a low learning rate.
     - **Stage 3 (optional):** Unfreeze more layers with an even lower learning rate.
   - Uses callbacks such as `EarlyStopping`, `ReduceLROnPlateau`, and `ModelCheckpoint` with **validation AUC** as the main monitor.
   - Evaluates the best model on the held-out test set and computes:
@@ -94,17 +94,17 @@ The notebooks assume you have:
 ## Model Architecture
 
 - **Visual branch:**
-  - Input: sequence of frames (e.g., `T` frames of size 224×224×3).
+  - Input: sequence of frames (e.g., 24 frames of size 224×224×3).
   - Preprocessing: `tf.keras.applications.mobilenet_v2.preprocess_input`.
   - Backbone: `TimeDistributed(MobileNetV2(include_top=False, weights="imagenet"))`.
   - Global average pooling per frame to get one feature vector per timestep.
 
 - **Temporal branch:**
-  - Bi-directional GRU (or GRU) over the sequence of frame features.
+  - Bi-directional GRU over the sequence of frame features.
   - Outputs a clip-level embedding that captures motion and temporal patterns (e.g., approaching objects, sudden deceleration).
 
 - **Metadata branch:**
-  - Input: encoded vector of metadata features (light condition, scene type, weather, etc.).
+  - Input: encoded vector of metadata features (light condition, scene type, weather).
   - One or more dense layers with non-linear activations.
 
 - **Fusion + classifier:**
@@ -118,6 +118,11 @@ The notebooks assume you have:
 
 1. **Data splits**
    - Dataset split into **train / validation / test** with a ~50/50 collision / no-collision balance in each split.
+   - These 1,500 clips were divided into:
+       - Train set: 1,050 videos (70%)
+       - Validation set: 450 videos (30%)
+       - A separate held-out test set of 1,344 videos (also balanced 50/50) was used exclusively for final evaluation.
+       - Data augmentation was applied only to the training portion of the real dataset, increasing the training set size to 2,100 samples.
 
 2. **Stage 1 – Frozen CNN**
    - Freeze all MobileNetV2 layers.
@@ -175,4 +180,5 @@ You can install the core dependencies via:
 
 ```bash
 pip install tensorflow numpy pandas scikit-learn opencv-python matplotlib tqdm
+
 
