@@ -91,7 +91,7 @@ The notebooks assume you have:
 
 ---
 
-## Model Architecture (Detail)
+## Model Architecture
 
 - **Visual branch:**
   - Input: sequence of frames (e.g., `T` frames of size 224×224×3).
@@ -175,3 +175,4 @@ You can install the core dependencies via:
 
 ```bash
 pip install tensorflow numpy pandas scikit-learn opencv-python matplotlib tqdm
+
